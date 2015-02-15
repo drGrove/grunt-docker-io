@@ -1,0 +1,42 @@
+{
+  "name": "grunt-docker-io",
+  "description": "Build and Push Docker Images",
+  "version": "0.1.0",
+  "homepage": "https://github.com/drGrove/grunt-docker-io",
+  "author": {
+    "name": "Danny Grove",
+    "email": "danny@drgrovellc.com",
+    "url": "http://dannygrove.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/drGrove/grunt-docker-io"
+  },
+  "bugs": {
+    "url": "https://github.com/drGrove/grunt-docker-io/issues"
+  },
+  "licenses": [
+    {
+      "type": "AGPL",
+      "url": "https://github.com/drGrove/grunt-docker-io/blob/master/LICENSE-AGPL"
+    }
+  ],
+  "engines": {
+    "node": ">= 0.10.0"
+  },
+  "scripts": {
+    "test": "grunt test"
+  },
+  "devDependencies": {
+    "grunt-contrib-jshint": "^0.9.2",
+    "grunt-contrib-clean": "^0.5.0",
+    "grunt-contrib-nodeunit": "^0.3.3",
+    "grunt": "~0.4.5"
+  },
+  "peerDependencies": {
+    "grunt": "~0.4.5"
+  },
+  "keywords": [
+    "gruntplugin"
+  ]
+}
