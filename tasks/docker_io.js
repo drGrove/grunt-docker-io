@@ -56,7 +56,7 @@ module.exports = function(grunt) {
       dockerLogin.stdout.on('data', function(data){
         data = data || ''
         var usernameRegex = /\(.*\)/
-        if((usernameRegex.exec(data) || '').length > 0) {
+        if(usernameRegex.exec(data).length > 0) {
           if(usernameRegex.exec(data)[0] !== '(' + opts.username + ')'){
             grunt.fatal('Please Login First')
           }
@@ -76,6 +76,9 @@ module.exports = function(grunt) {
           opts.buildName = opts.username + '/' + opts.buildName
         } else {
           opts.buildName = opts.pushLocation + '/' + opts.buildName
+        }
+        if(opts.tag !== '' || opts.tag !== 'latest') {
+          opts.buildName += ':' + opts.tag
         }
         buildOpts.push('build')
         if(opts.force) {
