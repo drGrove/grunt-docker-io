@@ -54,12 +54,15 @@ module.exports = function(grunt) {
 
       var dockerLogin = spawn('docker', loginOpts)
       dockerLogin.stdout.on('data', function(data){
+        data = data || ''
         var usernameRegex = /\(.*\)/
-        if(usernameRegex.exec(data).length > 0) {
+        if((usernameRegex.exec(data) || '').length > 0) {
           if(usernameRegex.exec(data)[0] !== '(' + opts.username + ')'){
             grunt.fatal('Please Login First')
           }
           next()
+        } else {
+          grunt.fatal('Please login to the docker registry - ' + opts.pushLocation)
         }
       })
     })
