@@ -12,6 +12,7 @@ module.exports = function(grunt) {
 
   // Project configuration.
   grunt.initConfig({
+    version: require('./package.json').version,
     jshint: {
       all: [
         'Gruntfile.js',
@@ -42,8 +43,20 @@ module.exports = function(grunt) {
     // Unit tests.
     nodeunit: {
       tests: ['test/*_test.js']
+    },
+    bump:
+    { options:
+      { files: ['package.json']
+      , commit: true
+      , commitFiles: ['package.json']
+      , updateConfigs: ['version']
+      , createTage: true
+      , push: true
+      , pushTo: 'origin'
+      , gitDescribeOptions: '--tags --always --abbrev=1 --dirty=-d'
+      , globalReplace: false
+      }
     }
-
   });
 
   // Actually load this plugin's task(s).
@@ -53,6 +66,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-nodeunit');
+  grunt.loadNpmTasks('grunt-bump');
 
   // Whenever the "test" task is run, first clean the "tmp" dir, then run this
   // plugin's task(s), then test the result.
