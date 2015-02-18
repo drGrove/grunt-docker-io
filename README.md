@@ -2,6 +2,9 @@
 
 > Build and Push Docker Images
 
+[![NPM](https://nodei.co/npm/grunt-docker-io.png?downloads=true&downloadRank=true)](https://nodei.co/npm/grunt-docker-io)
+
+
 ## Getting Started
 This plugin requires Grunt `~0.4.5`
 
