@@ -56,6 +56,12 @@ module.exports = function(grunt) {
       , gitDescribeOptions: '--tags --always --abbrev=1 --dirty=-d'
       , globalReplace: false
       }
+    },
+    release:
+    { options:
+      { bump: false
+      , commitMessage: 'Release <%= pkg.version %>'
+      }
     }
   });
 
@@ -67,7 +73,16 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-nodeunit');
   grunt.loadNpmTasks('grunt-bump');
+  grunt.loadNpmTasks('grunt-release');
 
+  grunt.registerTask('publish', function(target){
+    target = target || 'patch'
+    grunt.task.run
+    ( [ 'bump:' + target
+      , 'release'
+      ]
+    )
+  })
   // Whenever the "test" task is run, first clean the "tmp" dir, then run this
   // plugin's task(s), then test the result.
   grunt.registerTask('test', ['clean', 'docker_io', 'nodeunit']);
