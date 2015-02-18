@@ -9,10 +9,10 @@
 'use strict';
 
 module.exports = function(grunt) {
-
+  var pkg = require('./package.json')
   // Project configuration.
   grunt.initConfig({
-    version: require('./package.json').version,
+    pkg: pkg,
     jshint: {
       all: [
         'Gruntfile.js',
@@ -48,8 +48,8 @@ module.exports = function(grunt) {
     { options:
       { files: ['package.json']
       , commit: true
-      , commitFiles: ['package.json']
-      , updateConfigs: ['version']
+      , commitFiles: ['-a']
+      , updateConfigs: ['pkg']
       , createTage: true
       , push: true
       , pushTo: 'origin'
