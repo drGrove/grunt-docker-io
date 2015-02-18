@@ -44,6 +44,7 @@ grunt.initConfig({
 Type: `String`
 Default value: `'.'`
 
+
 A string value that gives the location of the docker file relative to project root.
 
 #### options.buildName
@@ -66,9 +67,10 @@ A string value for the location where you'd like to push for docker image
 
 #### options.username
 Type: `String`
-Default value: `''`
+Default value: `process.env.USER`
+Required: `true`
 
-Your Docker Hub username (if you're pushing to docker)
+Your Registry username.
 
 #### options.push 
 Type: `Boolean`
@@ -95,7 +97,7 @@ grunt.initConfig({
       buildName: '',
       tag: 'latest',
       pushLocation: 'https://hub.docker.io',
-      username: '', // if dockerhub
+      username: process.env.USER, // Current logged in user
       push: true,
       force: false
     }
