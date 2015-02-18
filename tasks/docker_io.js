@@ -25,7 +25,7 @@ module.exports = function(grunt) {
       buildName: '',
       tag: 'latest',
       pushLocation: DOCKER_HUB_URL,
-      username: '', // if dockerhub
+      username: process.env.USER
       push: true,
       force: false
     });
