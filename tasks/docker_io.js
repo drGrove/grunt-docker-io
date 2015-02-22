@@ -45,6 +45,16 @@ module.exports = function(grunt) {
       }
     }
 
+    var getBase = function(){
+      var buildName
+      if(opts.pushLocation === DOCKER_HUB_URL) {
+        buildName = opts.username + '/' + opts.buildName
+      } else {
+        buildName = opts.pushLocation + '/' + opts.buildName
+      }
+      return buildName;
+    }
+
     // Check that user is logged in
     runIf(true, function(){
       var loginOpts = ['login']
@@ -80,12 +90,7 @@ module.exports = function(grunt) {
         && opts.buildName !== ''
       , function(i){
           var buildOpts = ['build']
-          var buildName;
-          if(opts.pushLocation === DOCKER_HUB_URL) {
-            buildName = opts.username + '/' + opts.buildName
-          } else {
-            buildName = opts.pushLocation + '/' + opts.buildName
-          }
+          var buildName = getBase();
           buildOpts.push('-t')
           buildOpts.push(buildName + ':' + opts.tag[0])
           buildOpts.push(opts.dockerFileLocation)
@@ -111,7 +116,7 @@ module.exports = function(grunt) {
     runIf(opts.push, function(){
       var pushOpts = []
       pushOpts.push('push')
-      pushOpts.push(opts.buildName)
+      pushOpts.push(getBase())
       var dockerPush = spawn('docker', pushOpts)
       dockerPush.stdout.on('data', function(data){
         if(data === REQUIRES_LOGIN) {
