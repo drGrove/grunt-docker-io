@@ -9,7 +9,7 @@
 'use strict';
 
 var spawn = require('child_process').spawn
-
+var fs = require('fs')
 
 module.exports = function(grunt) {
 
@@ -23,7 +23,7 @@ module.exports = function(grunt) {
     var opts = this.options({
       dockerFileLocation: '.',
       buildName: '',
-      tag: 'latest',
+      tag: ['latest'],
       pushLocation: DOCKER_HUB_URL,
       username: process.env.USER,
       push: true,
@@ -67,42 +67,47 @@ module.exports = function(grunt) {
       })
     })
 
-    runIf
-    ( opts.dockerFileLocation !== ''
-      && opts.buildName !== ''
-    , function(){
-        var buildOpts = []
-        if(opts.pushLocation === DOCKER_HUB_URL) {
-          opts.buildName = opts.username + '/' + opts.buildName
-        } else {
-          opts.buildName = opts.pushLocation + '/' + opts.buildName
-        }
-        if(opts.tag !== '' || opts.tag !== 'latest') {
-          opts.buildName += ':' + opts.tag
-        }
-        buildOpts.push('build')
-        if(opts.force) {
-          buildOpts.push('-f')
-        }
-        buildOpts.push('-t')
-        buildOpts.push(opts.buildName)
-        buildOpts.push(opts.dockerFileLocation)
-        var buildDocker = spawn('docker', buildOpts)
-        buildDocker.stdout.on('data', function(data){
-          grunt.log.ok(data)
-        })
-        buildDocker.stderr.on('data', function(data){
-          grunt.log.error(data)
-        })
-        buildDocker.on('exit', function(code){
-          if(code !== 0) {
-            grunt.fatal('Could not build docker image')
+    if( typeof opts.tag === 'string')
+      opts.tag = opts.tag.split(',')
+    if(opts.tag === '' || opts.tag === [] || opts.tag === 'latest') {
+      opts.tag = [];
+      opts.tag.push('latest')
+    }
+    var tagCount = opts.tag.length;
+    for(var i = 0; i < tagCount; i++) {
+      runIf
+      ( opts.dockerFileLocation !== ''
+        && opts.buildName !== ''
+      , function(i){
+          var buildOpts = ['build']
+          var buildName;
+          if(opts.pushLocation === DOCKER_HUB_URL) {
+            buildName = opts.username + '/' + opts.buildName
+          } else {
+            buildName = opts.pushLocation + '/' + opts.buildName
           }
-          next()
-        })
-      }
-    )
-
+          buildOpts.push('-t')
+          buildOpts.push(buildName + ':' + opts.tag[0])
+          buildOpts.push(opts.dockerFileLocation)
+          console.log(buildOpts.join(' '))
+          var dockerBuild = spawn('docker', buildOpts)
+          dockerBuild.stdout.on('data', function(data){
+            grunt.log.ok(data)
+          })
+          dockerBuild.stderr.on('data', function(data){
+            grunt.fatal('Could not build image - ' +  data)
+          })
+          dockerBuild.on('exit', function(code){
+            if(code === 0) {
+              opts.tag.shift()
+              next()
+            } else {
+              grunt.fatal('Error Building image')
+            }
+          })
+        }
+      )
+    }
     runIf(opts.push, function(){
       var pushOpts = []
       pushOpts.push('push')

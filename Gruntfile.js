@@ -35,7 +35,9 @@ module.exports = function(grunt) {
         options: {
           dockerFileLocation: 'test',
           buildName: 'node-test',
-          username: 'drgrove'
+          username: 'drgrove',
+          tag: ['test', 'latest'],
+          push: false
         },
       }
     },
