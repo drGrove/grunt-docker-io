@@ -1,7 +1,7 @@
 {
   "name": "grunt-docker-io",
   "description": "Build and Push Docker Images",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "homepage": "https://github.com/drGrove/grunt-docker-io",
   "author": {
     "name": "Danny Grove",
