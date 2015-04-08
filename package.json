@@ -17,7 +17,7 @@
   },
   "licenses": [
     {
-      "type": "AGPL",
+      "type": "MIT",
       "url": "https://github.com/drGrove/grunt-docker-io/blob/master/LICENSE-AGPL"
     }
   ],
