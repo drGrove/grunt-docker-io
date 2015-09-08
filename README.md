@@ -23,19 +23,21 @@ grunt.loadNpmTasks('grunt-docker-io');
 ## The "docker_io" task
 
 ### Overview
-In your project's Gruntfile, add a section named `docker_io` to the data object passed into `grunt.initConfig()`.
+In your project's Gruntfile, add a section named `docker_io` to the data object passed into `grunt.initConfig()`.  The `docker_io` section should include a target, in the example below we've named the target `testimage`.
 
 ```js
 grunt.initConfig({
   docker_io: {
-    options: {
-      dockerFileLocation: '.',
-      buildName: 'dockerIO',
-      tag: 'latest',
-      pushLocation: 'https://hub.docker.io',
-      username: 'drgrove',
-      push: true,
-      force: true
+    testimage: {
+      options: {
+        dockerFileLocation: '.',
+        buildName: 'dockerIO',
+        tag: 'latest',
+        pushLocation: 'https://hub.docker.io',
+        username: 'drgrove',
+        push: true,
+        force: true
+      }
     }
   },
 });
@@ -90,19 +92,21 @@ Force the tag creation
 ### Usage Examples
 
 #### Default Options
-In this example, the default options are used to do something with whatever. So if the `testing` file has the content `Testing` and the `123` file had the content `1 2 3`, the generated result would be `Testing, 1 2 3.`
+In this example, the default options are used to build the docker file in the current directory.  The built image will be pushed to `process.env.USER`'s `test` repository in the docker hub with a `latest` tag. 
 
 ```js
 grunt.initConfig({
   docker_io: {
-    options: {
-      dockerFileLocation: '.',
-      buildName: '',
-      tag: 'latest',
-      pushLocation: 'https://hub.docker.io',
-      username: process.env.USER, // Current logged in user
-      push: true,
-      force: false
+    testimage: {
+      options: {
+        dockerFileLocation: '.',
+        buildName: 'test',
+        tag: 'latest',
+        pushLocation: 'https://hub.docker.io',
+        username: process.env.USER, // Current logged in user
+        push: true,
+        force: false
+      }
     }
   },
 });
