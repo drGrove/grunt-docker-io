@@ -66,7 +66,7 @@ module.exports = function(grunt) {
       dockerLogin.stdout.on('data', function(data){
         data = data || ''
         var usernameRegex = /\(.*\)/
-        if(usernameRegex.exec(data).length > 0) {
+        if(usernameRegex.exec(data) && usernameRegex.exec(data).length > 0) {
           if(usernameRegex.exec(data)[0] !== '(' + opts.username + ')'){
             grunt.fatal('Please Login First')
           }
