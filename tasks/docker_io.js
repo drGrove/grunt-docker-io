@@ -93,6 +93,12 @@ module.exports = function(grunt) {
           var buildName = getBase();
           buildOpts.push('-t')
           buildOpts.push(buildName + ':' + opts.tag[0])
+	  if(opts.buildArgs) {
+	      opts.buildArgs.forEach(function(ba) {
+		  buildOpts.push('--build-arg');
+		  buildOpts.push(ba);
+	      });
+	  }
           buildOpts.push(opts.dockerFileLocation)
           console.log(buildOpts.join(' '))
           var dockerBuild = spawn('docker', buildOpts)
