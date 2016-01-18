@@ -32,6 +32,7 @@ grunt.initConfig({
       options: {
         dockerFileLocation: '.',
         buildName: 'dockerIO',
+        buildArgs: ['version=' + process.env.VERSION]
         tag: 'latest',
         pushLocation: 'https://hub.docker.io',
         username: 'drgrove',
