@@ -56,7 +56,7 @@ module.exports = function(grunt) {
     }
 
     // Check that user is logged in
-    runIf(true, function(){
+    runIf(opts.push, function(){
       var loginOpts = ['login']
       if(opts.pushLocation !== DOCKER_HUB_URL) {
         loginOpts.push(opts.pushLocation)
