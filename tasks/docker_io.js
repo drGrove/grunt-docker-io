@@ -8,8 +8,8 @@
 
 'use strict';
 
-var spawn = require('child_process').spawn
-var fs = require('fs')
+var spawn = require('child_process').spawn;
+var fs = require('fs');
 
 module.exports = function(grunt) {
 
@@ -18,8 +18,8 @@ module.exports = function(grunt) {
 
   grunt.registerMultiTask('docker_io', 'Build and Push Docker Images', function() {
     // Merge task-specific and/or target-specific options with these defaults.
-    var DOCKER_HUB_URL = "http://hub.docker.io"
-    var REQUIRES_LOGIN = "Please login prior to push:"
+    var DOCKER_HUB_URL = "http://hub.docker.io";
+    var REQUIRES_LOGIN = "Please login prior to push:";
     var opts = this.options({
       dockerFileLocation: '.',
       buildName: '',
@@ -34,113 +34,144 @@ module.exports = function(grunt) {
     var queue = [];
     var next = function() {
       if(!queue.length) {
-        return done()
+        return done();
       }
       queue.shift()();
-    }
+    };
 
     var runIf = function(condition, behavior){
       if(condition) {
-        queue.push(behavior)
+        queue.push(behavior);
       }
-    }
+    };
 
     var getBase = function(){
-      var buildName
+      var buildName;
       if(opts.pushLocation === DOCKER_HUB_URL) {
-        buildName = opts.username + '/' + opts.buildName
+        buildName = opts.username + '/' + opts.buildName;
       } else {
-        buildName = opts.pushLocation + '/' + opts.buildName
+        buildName = opts.pushLocation + '/' + opts.buildName;
       }
       return buildName;
-    }
+    };
 
     // Check that user is logged in
     runIf(true, function(){
-      var loginOpts = ['login']
+      var loginOpts = ['login'];
       if(opts.pushLocation !== DOCKER_HUB_URL) {
-        loginOpts.push(opts.pushLocation)
+        loginOpts.push(opts.pushLocation);
       }
 
-      var dockerLogin = spawn('docker', loginOpts)
+      var dockerLogin = spawn('docker', loginOpts);
       dockerLogin.stdout.on('data', function(data){
-        data = data || ''
-        var usernameRegex = /\(.*\)/
+        data = data || '';
+        var usernameRegex = /\(.*\)/;
         if(usernameRegex.exec(data) && usernameRegex.exec(data).length > 0) {
           if(usernameRegex.exec(data)[0] !== '(' + opts.username + ')'){
-            grunt.fatal('Please Login First')
+            grunt.fatal('Please Login First');
           }
-          next()
+          next();
         } else {
-          grunt.fatal('Please login to the docker registry - ' + opts.pushLocation)
+          grunt.fatal('Please login to the docker registry - ' + opts.pushLocation);
         }
-      })
-    })
+      });
+    });
 
-    if( typeof opts.tag === 'string')
-      opts.tag = opts.tag.split(',')
+    if(typeof opts.tag === 'string') {
+      opts.tag = opts.tag.split(',');
+    }
+
     if(opts.tag === '' || opts.tag === [] || opts.tag === 'latest') {
       opts.tag = [];
-      opts.tag.push('latest')
+      opts.tag.push('latest');
     }
-    var tagCount = opts.tag.length;
-    for(var i = 0; i < tagCount; i++) {
-      runIf
-      ( opts.dockerFileLocation !== ''
-        && opts.buildName !== ''
-      , function(i){
-          var buildOpts = ['build']
-          var buildName = getBase();
-          buildOpts.push('-t')
-          buildOpts.push(buildName + ':' + opts.tag[0])
-          if(opts.buildArgs) {
-            opts.buildArgs.forEach(function(ba) {
-              buildOpts.push('--build-arg');
-              buildOpts.push(ba);
-            });
-          }
-          buildOpts.push(opts.dockerFileLocation)
-          console.log(buildOpts.join(' '))
-          var dockerBuild = spawn('docker', buildOpts)
-          dockerBuild.stdout.on('data', function(data){
-            grunt.log.ok(data)
-          })
-          dockerBuild.stderr.on('data', function(data){
-            grunt.fatal('Could not build image - ' +  data)
-          })
-          dockerBuild.on('exit', function(code){
-            if(code === 0) {
-              opts.tag.shift()
-              next()
-            } else {
-              grunt.fatal('Error Building image')
-            }
-          })
+
+    runIf(
+      opts.dockerFileLocation !== '' &&
+      opts.buildName !== '',
+      function() {
+        var buildOpts = ['build'];
+        var buildName = getBase();
+
+        buildOpts.push('-t');
+        buildOpts.push(buildName + ':' + opts.tag[0]);
+        if(opts.buildArgs) {
+          opts.buildArgs.forEach(function(ba) {
+            buildOpts.push('--build-arg');
+            buildOpts.push(ba);
+          });
         }
-      )
+        buildOpts.push(opts.dockerFileLocation);
+        console.log(buildOpts.join(' '));
+        var dockerBuild = spawn('docker', buildOpts);
+        dockerBuild.stdout.on('data', function(data){
+          grunt.log.ok(data);
+        });
+        dockerBuild.stderr.on('data', function(data){
+          grunt.fatal('Could not build image - ' +  data);
+        });
+        dockerBuild.on('exit', function(code){
+          if(code === 0) {
+            next();
+          } else {
+            grunt.fatal('Error Building image');
+          }
+        });
+      }
+    );
+
+    for (var i = 1 ; i < opts.tag.length ; i++) {
+      runIf(true, (function(primaryTag, newTag) {
+        return function() {
+          var tagOpts = ['tag'];
+          var buildName = getBase();
+
+          tagOpts.push('-f');
+          tagOpts.push(buildName + ':' + primaryTag);
+          tagOpts.push(buildName + ':' + newTag);
+
+          console.log(tagOpts.join(' '));
+          var dockerTag = spawn('docker', tagOpts);
+          dockerTag.stdout.on('data', function(data) {
+            grunt.log.ok(data);
+          });
+          dockerTag.stderr.on('data', function(data) {
+            grunt.fatal('Could not tag image - ' + data);
+          });
+          dockerTag.on('exit', function(code) {
+            if (code === 0) {
+              next();
+            }
+            else {
+              grunt.fatal('Error Tagging image');
+            }
+          });
+        };
+      })(opts.tag[0], opts.tag[i]));
     }
+
     runIf(opts.push, function(){
-      var pushOpts = []
-      pushOpts.push('push')
-      pushOpts.push(getBase())
-      var dockerPush = spawn('docker', pushOpts)
+      var pushOpts = [];
+      pushOpts.push('push');
+      pushOpts.push(getBase());
+      var dockerPush = spawn('docker', pushOpts);
       dockerPush.stdout.on('data', function(data){
         if(data === REQUIRES_LOGIN) {
-          grunt.fatal('You must first login ')
+          grunt.fatal('You must first login ');
         }
-        grunt.log.ok(data)
-      })
+        grunt.log.ok(data);
+      });
       dockerPush.stderr.on('data', function(data){
-        grunt.log.error(data)
-      })
+        grunt.log.error(data);
+      });
       dockerPush.on('exit', function(code){
         if(code !== 0) {
-          grunt.fatal('Could not push docker image ' + opts.buildName)
+          grunt.fatal('Could not push docker image ' + opts.buildName);
         }
-        next()
-      })
-    })
+        next();
+      });
+    });
 
-    next()
+    next();
   });
 };
