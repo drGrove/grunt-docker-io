@@ -126,7 +126,6 @@ module.exports = function(grunt) {
           var tagOpts = ['tag'];
           var buildName = getBase();
 
-          tagOpts.push('-f');
           tagOpts.push(buildName + ':' + primaryTag);
           tagOpts.push(buildName + ':' + newTag);
 
